@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- //定义一个上传文件空间 id就叫excel-file，通过onchange事件触发读取Excel表数据  onchange="Saveexcel(this)" -->
+    <input type="file" id="excel-file" name="excel-file" />
+    <button onclick="Saveexcel()">导出</button>
+    <div>
+        <div class='test'></div>
+    </div>
+    <br>
+    <!-- <form action="http://localhost:8090/world" method="post">
+        <input name="id" type="text">
+        <input type="text" name="name">
+        <button type="submit">Save</button>
+    </form> -->
+    <div class="save">
+        key:<input name="id" type="text">
+        value:<input type="text" name="name">
+        <button>Save</button>
+    </div>
+    <br>
+    <div class="query">
+        key:<input type="text" name="param">
+        <button class="btn">query</button>
+        <div style="height: 200px;width: 100%;border: dashed red 1px;overflow: auto;"></div>
+    </div>
+    <div class="delete">
+        key:<input type="text" name="id">
+        <button class="del">Delete</button>
+        <button onclick="test()"></button>
+    </div>
+    <div class="update">
+        key:<input name="id" type="text">
+        value:<input type="text" name="name">
+        <button>Update</button>
+    </div>
+    <br>
+    <p id="results"><b>Results:</b></p>
+    <form>
+      <select name="single">
+        <option>Single</option>
+        <option>Single2</option>
+      </select>
+      <select name="multiple" multiple="multiple">
+        <option selected="selected">Multiple</option>
+        <option>Multiple2</option>
+        <option selected="selected">Multiple3</option></select
+      ><br />
+      <input type="checkbox" name="check" value="check1" /> check1
+      <input type="checkbox" name="check" value="check2" checked="checked" />
+      check2
+      <input type="radio" name="radio" value="radio1" checked="checked" />
+      radio1 <input type="radio" name="radio" value="radio2" /> radio2
+     
+    </form> <button onclick="submitForm()"></button>
+    <br />
+    <form
+      id="upload"
+      method="post"
+      enctype="multipart/form-data"
+      action="http://localhost:8090/upload"
+      onsubmit=""
+    >
+      <p>
+        <input type="file" name="file" />
+      </p>
+      <p>
+        <input type="file" name="file" />
+      </p>
+      <p>
+        <input type="file" name="file" />
+      </p>
+      <p>
+        <input type="submit" value="上传" />
+      </p>
+    </form>
+</body>
+<!-- <script type="model">
+    import Vue for 'Vue';
+    Array.prototype.substring2 = function (a, b) {
+        var tempArr = [];
+        for (let i = a; i < b; i++) {
+            tempArr.push(this[0][i])
+        }
+        for(let i=0;i<tempArr.length;i++){
+            this[i]=tempArr[i]
+        }
+    }
+    // [1,2,3].substring2(1,2)
+    var arr = new Array([1, 2, 3,4,5,6,7,8,9])
+    console.info(arr)
+    arr.substring2(3, 5)
+    console.info(arr)
+
+    console.info(Vue)
+</script> -->
+<script src="../../../node_modules/jquery/dist/jquery.min.js"></script>
+<!-- <script src="https://cdn.bootcss.com/xlsx/0.11.5/xlsx.core.min.js"></script>
+ -->
+<script src="./xlsx.core.min.js"></script>
+<script>
+    function submitForm() {
+      var fields = $("select, input[name=radio]").serializeArray();
+      console.log( $("select, input[name=radio]"),fields)
+    //   $.each(fields, function (i, field) {
+    //     $("#results").append(field.value + " ");
+    //   });
+    $("#results").append( "<tt>" + $("form").serialize() + "</tt>" );
+      // jquery 表单提交
+      //   $("#upload").ajaxSubmit(function (message) {
+      //     // 对于表单提交成功后处理，message为表单正常提交后返回的内容
+      //     console.log(message);
+      //   });
+        return false; // 必须返回false，否则表单会自己再做一次提交操作，并且页面跳转
+    }
+    function test() {
+        fetch('http://localhost:8090/test')
+        // .then(response => {
+        //     response.json()
+        // })
+        .then(response => {
+            alert(response)
+        })
+    }
+    $('.update').on('click', 'button', function () {
+        $.ajax({
+            type: 'post',
+            url: 'http://localhost:8090/update',
+            // processData: false,
+            contentType: false,//'application/json;charset=UTF-8',
+            data: JSON.stringify({ id: $('.update').find('input[name=id]').val(), name: $('.update').find('input[name=name]').val() }),
+            dataType: "json",
+            // withCredentials: false,
+            success: function (result) {
+                console.info(result)
+                $('.query>div').html(JSON.stringify(result));
+            }
+        })
+    })
+    $('.delete').on('click', '.del', function () {
+        $.ajax({
+            type: 'post',
+            url: 'http://localhost:8090/delete',
+            // processData: false,
+            contentType: false,//'application/json;charset=UTF-8',
+            data: JSON.stringify({ id: $('.delete').find('input[name=id]').val() }),
+            dataType: "json",
+            // withCredentials: false,
+            success: function (result) {
+                console.info(result)
+                $('.query>div').html(JSON.stringify(result));
+            }
+        })
+    })
+    $('.query').on('click', '.btn', function () {
+        $.ajax({
+            type: 'post',
+            url: 'http://localhost:8090/query',
+            // processData: false,
+            contentType: false,//'application/json;charset=UTF-8',
+            data: JSON.stringify({ id: $('.query').find('input[name=param]').val() }),
+            dataType: "json",
+            // withCredentials: false,
+            success: function (result) {
+                console.info(result)
+                $('.query>div').html(JSON.stringify(result));
+            }
+        })
+    })
+    $('.save').on('click', 'button', function () {
+        let json = {
+            id: $('.save').find('input[name=id]').val(),
+            name: $('.save').find('input[name=name]').val()
+        }
+        let that = this;
+        //  contentType       设置成默认的application/x-www-form-urlencoded， 后端可以直接用
+        // String username = request.getParameter("username");
+        $.ajax({
+            type: 'post',
+            url: 'http://localhost:8090/world',
+            // processData: false,
+            contentType: false,//'application/json;charset=UTF-8',
+            data: JSON.stringify(json),
+            dataType: "json",
+            // withCredentials: false,
+            success: function (result) {
+                console.info(result)
+                $('.query>div').html(JSON.stringify(result));
+            }
+        })
+    })
+    var a = 1234;
+    var ss = "117°10'66\"";
+    $('.test').html(`<div class='${a}'>${ss}</div>`);
+    //JQuery代码
+    //读取excel表中数据
+    //
+    var wb;//读取完成的数据
+    var rABS = false; //是否将文件读取为二进制字符串
+    function Saveexcel() {
+        let obj = $("input[name='excel-file']")[0];
+        if (!obj.files) {
+            return;
+        }
+        //取得文件后缀名进行判断
+        var location = $("input[name='excel-file']").val();
+        var point = location.lastIndexOf(".");
+        var type = location.substr(point);
+        if (type != ".xlsx") {
+            $.messager.alert('提示', '文档格式不正确,请上传后缀名是.xlsx的文件!', 'info');
+            $('#excel-file').val("");
+            return;
+        }
+        //文件后缀名条件符合
+        else {
+            var f = obj.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = e.target.result;
+                var files = e.target;
+                if (rABS) {
+                    wb = XLSX.read(btoa(fixdata(data)), {
+                        type: 'base64'
+                    }),
+                        persons = [];
+                } else {
+                    wb = XLSX.read(data, {
+                        type: 'binary'
+                    }),
+                        persons = [];//存储取得的数据
+                }
+                //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
+                //wb.Sheets[Sheet名]获取第一个Sheet的数据
+                var JsonHtml = JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
+                var fromTo = '';  // 遍历每张表读取
+                for (var sheet in wb.Sheets) {
+                    if (wb.Sheets.hasOwnProperty(sheet)) {
+                        fromTo = wb.Sheets[sheet]['!ref'];
+                        persons = persons.concat(XLSX.utils.sheet_to_json(wb.Sheets[sheet]));
+                    }
+                };
+                let a = document.createElement('a');
+                a.download = location.substring(location.lastIndexOf("\\") + 1, point) + '.json';
+                let blob = new Blob([JSON.stringify(persons)]);
+                a.href = URL.createObjectURL(blob);
+                a.click();
+                //var dataID = ['deviceName', 'Type', 'FlowNumber', 'SerialNumber', 'Model', 'Computerroom', 'Company', 'Department', 'Supplier', 'PurchaseTime', 'PurchaseMoney', 'GuaranteeTime', 'CPU', 'Graphicscard', 'Memorybar', 'Amainboard', 'Soundcard', 'Remarks'];//input ID
+            }
+            if (rABS) {
+                reader.readAsArrayBuffer(f);
+
+            } else {
+                reader.readAsBinaryString(f);
+            }
+        };
+    }
+    // $.each({a:function(){console.log(123)},c:4,d:$("input[name='excel-file']")[0]},function(index,value){
+    //     console.log(this)
+    // })
+    $.each('1e4',function(index,value){
+        console.log(this)
+    })
+</script>
+
+</html>
