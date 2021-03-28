@@ -169,7 +169,7 @@ export default {
       index: this.pageIndex, //当前页码
       limit: this.pageSize, //每页显示条数
       size: this.total || 1, //总记录数
-      showPrevMore: false,
+      showPrevMore: false, 
       showNextMore: false,
     };
   },
